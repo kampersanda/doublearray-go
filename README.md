@@ -2,6 +2,12 @@
 
 This package implements double-array minimal-prefix trie.
 
+## Install
+
+```
+$ go get github.com/kampersanda/doublearray-go
+```
+
 ## Usage
 
 ```go
