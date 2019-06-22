@@ -18,11 +18,11 @@ func Example() {
 
 	da, _ = doublearray.Build(keys, values)
 
-	val, found := da.Lookup("Bocci")
-	fmt.Println(val, found)
+	value, found := da.Lookup("Bocci")
+	fmt.Println(value, found)
 
-	val, found = da.Lookup("Peko")
-	fmt.Println(val, found)
+	value, found = da.Lookup("Peko")
+	fmt.Println(value, found)
 
 	// Output:
 	// 505 true
