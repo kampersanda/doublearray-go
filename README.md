@@ -1,4 +1,4 @@
-# doublearray-go [![GoDoc](https://godoc.org/github.com/kampersanda/doublearray-go?status.svg)](https://godoc.org/github.com/kampersanda/doublearray-go) [![Go Report Card](https://goreportcard.com/badge/github.com/kampersanda/doublearray-go)](https://goreportcard.com/report/github.com/kampersanda/doublearray-go)
+# doublearray-go [![GoDoc](https://godoc.org/github.com/kampersanda/doublearray-go?status.svg)](https://godoc.org/github.com/kampersanda/doublearray-go) [![Go Report Card](https://goreportcard.com/badge/github.com/kampersanda/doublearray-go)](https://goreportcard.com/report/github.com/kampersanda/doublearray-go) [![Build Status](https://travis-ci.org/kampersanda/doublearray-go.svg?branch=master)](https://travis-ci.org/kampersanda/doublearray-go)
 
 Package `doublearray-go` implements double-array minimal-prefix trie.
 
