@@ -13,7 +13,7 @@ func Example() {
 		"Aru", "Bocci", "Kai", "Kako", "Nako", "Nakosuke", "Sotca",
 	}
 	values := []int{
-		1224, 505, 505, 611, 504, 504, 731,
+		1, 2, 3, 4, 5, 6, 7,
 	}
 
 	da, _ = doublearray.Build(keys, values)
@@ -25,16 +25,36 @@ func Example() {
 	fmt.Println(value, found)
 
 	// Output:
-	// 505 true
+	// 2 true
 	// 0 false
 }
 
+func Example_prefixLookup() {
+	keys, values := da.PrefixLookup("Nakosuke")
+	fmt.Println(keys)
+	fmt.Println(values)
+
+	// Output:
+	// [Nako Nakosuke]
+	// [5 6]
+}
+
+func Example_predictiveLookup() {
+	keys, values := da.PredictiveLookup("Ka")
+	fmt.Println(keys)
+	fmt.Println(values)
+
+	// Output:
+	// [Kai Kako]
+	// [3 4]
+}
+
 func Example_enumerate() {
-	keys, values := da.Enumerate()
+	keys, values := da.PredictiveLookup("")
 	fmt.Println(keys)
 	fmt.Println(values)
 
 	// Output:
 	// [Aru Bocci Kai Kako Nako Nakosuke Sotca]
-	// [1224 505 505 611 504 504 731]
+	// [1 2 3 4 5 6 7]
 }

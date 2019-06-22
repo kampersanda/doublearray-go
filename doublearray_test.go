@@ -40,7 +40,7 @@ func TestDoubleArray(t *testing.T) {
 		}
 	}
 
-	decKeys, decValues := da.Enumerate()
+	decKeys, decValues := da.PredictiveLookup("")
 	if len(decKeys) != len(keys) {
 		t.Fatalf("len(decKeys) = %d, but len(keys) = %d", len(decKeys), len(keys))
 	}

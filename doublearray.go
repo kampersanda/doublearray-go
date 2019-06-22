@@ -2,14 +2,15 @@ package doublearray
 
 import "fmt"
 
-// DoubleArray is
+// DoubleArray implements double-array minimal-prefix trie.
 type DoubleArray struct {
 	array   []node
 	tail    []byte
 	numKeys int
 }
 
-// Build is
+// Build returns a DoubleArray object built from sorted key strings and associated values.
+// Each key must be unique and nonempty.
 func Build(keys []string, values []int) (*DoubleArray, error) {
 	if len(keys) == 0 {
 		return nil, fmt.Errorf("keys must not be empty")
@@ -20,7 +21,7 @@ func Build(keys []string, values []int) (*DoubleArray, error) {
 
 	b := builder{keys: keys, values: values}
 	b.init()
-	err := b.arrange(0, len(keys), 0, rootPos)
+	err := b.arrange(0, len(keys), 0, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -29,16 +30,21 @@ func Build(keys []string, values []int) (*DoubleArray, error) {
 	return &DoubleArray{array: b.array, tail: b.tail, numKeys: len(keys)}, nil
 }
 
-// Lookup is
-func (da *DoubleArray) Lookup(key string) (int, bool) {
-	kpos := 0
-	npos := rootPos
+// NumKeys returns the number of keys stored.
+func (da *DoubleArray) NumKeys() int {
+	return da.numKeys
+}
 
-	for ; kpos < len(key); kpos++ {
+// Lookup returns the associated value with the given key if found.
+func (da *DoubleArray) Lookup(key string) (int, bool) {
+	npos := 0
+	depth := 0
+
+	for ; depth < len(key); depth++ {
 		if da.array[npos].base < 0 {
 			break
 		}
-		cpos := da.array[npos].base ^ int(key[kpos])
+		cpos := da.array[npos].base ^ int(key[depth])
 		if da.array[cpos].check != npos {
 			return 0, false
 		}
@@ -46,7 +52,7 @@ func (da *DoubleArray) Lookup(key string) (int, bool) {
 	}
 
 	if da.array[npos].base >= 0 {
-		cpos := da.array[npos].base ^ int(terminator)
+		cpos := da.array[npos].base // ^ int(terminator)
 		if da.array[cpos].check != npos {
 			return 0, false
 		}
@@ -54,8 +60,8 @@ func (da *DoubleArray) Lookup(key string) (int, bool) {
 	}
 
 	tpos := -da.array[npos].base
-	for ; kpos < len(key); kpos++ {
-		if da.tail[tpos] != key[kpos] {
+	for ; depth < len(key); depth++ {
+		if da.tail[tpos] != key[depth] {
 			return 0, false
 		}
 		tpos++
@@ -67,13 +73,80 @@ func (da *DoubleArray) Lookup(key string) (int, bool) {
 	return da.getValue(tpos + 1), true
 }
 
-// Enumerate returns
-func (da *DoubleArray) Enumerate() ([]string, []int) {
+// PrefixLookup returns the keys and associated values included as prefixes of the given key.
+func (da *DoubleArray) PrefixLookup(key string) ([]string, []int) {
+	keys := make([]string, 0)
+	values := make([]int, 0)
+
+	npos := 0
+	depth := 0
+
+	for ; depth < len(key); depth++ {
+		if da.array[npos].base < 0 {
+			break
+		}
+
+		base := da.array[npos].base
+
+		if da.array[base].check == npos {
+			keys = append(keys, key[:depth])
+			values = append(values, da.array[base].base)
+		}
+
+		cpos := base ^ int(key[depth])
+		if da.array[cpos].check != npos {
+			return keys, values
+		}
+		npos = cpos
+	}
+
+	base := da.array[npos].base
+
+	if base >= 0 {
+		if da.array[base].check == npos {
+			keys = append(keys, key[:depth])
+			values = append(values, da.array[base].base)
+		}
+		return keys, values
+	}
+
+	tpos := -base
+	for ; depth < len(key); depth++ {
+		if da.tail[tpos] != key[depth] {
+			return keys, values
+		}
+		tpos++
+	}
+
+	if da.tail[tpos] == terminator {
+		keys = append(keys, key[:depth])
+		values = append(values, da.getValue(tpos+1))
+	}
+
+	return keys, values
+}
+
+// PredictiveLookup returns the keys and associated values starting with prefixes of the given key.
+func (da *DoubleArray) PredictiveLookup(key string) ([]string, []int) {
 	keys := make([]string, 0, da.numKeys)
 	values := make([]int, 0, da.numKeys)
 
-	decoded := make([]byte, 0)
-	keys, values = da.enumerate(rootPos, 0, decoded, keys, values)
+	npos := 0
+	depth := 0
+
+	for ; depth < len(key); depth++ {
+		if da.array[npos].base < 0 {
+			return keys, values
+		}
+
+		cpos := da.array[npos].base ^ int(key[depth])
+		if da.array[cpos].check != npos {
+			return keys, values
+		}
+		npos = cpos
+	}
+
+	keys, values = da.enumerate(npos, depth, []byte(key), keys, values)
 
 	return keys, values
 }
@@ -91,7 +164,7 @@ func (da *DoubleArray) enumerate(npos int, depth int, decoded []byte, keys []str
 	}
 
 	base := da.array[npos].base
-	cpos := base ^ int(terminator)
+	cpos := base // ^ int(terminator)
 
 	if da.array[cpos].check == npos {
 		keys = append(keys, string(decoded))
@@ -110,18 +183,11 @@ func (da *DoubleArray) enumerate(npos int, depth int, decoded []byte, keys []str
 	return keys, values
 }
 
-// NumKeys returns
-func (da *DoubleArray) NumKeys() int {
-	return da.numKeys
-}
-
 func (da *DoubleArray) getValue(tpos int) int {
 	return int(da.tail[tpos]) | int(da.tail[tpos+1])<<8 | int(da.tail[tpos+2])<<16 | int(da.tail[tpos+3])<<24
 }
 
 const (
-	rootPos    = 0
-	blockLen   = 256
 	terminator = byte(0)
 )
 
@@ -130,56 +196,56 @@ type node struct {
 }
 
 type builder struct {
-	array   []node
-	tail    []byte
-	keys    []string
-	values  []int
-	empHead int
+	array  []node
+	tail   []byte
+	keys   []string
+	values []int
 }
 
 func (b *builder) init() {
-	capa := blockLen
+	capa := 256
 	for capa < len(b.keys) {
 		capa <<= 1
 	}
 
-	array := make([]node, blockLen, capa)
+	array := make([]node, 256, capa)
 	tail := make([]byte, 1)
 
-	for i := 1; i < blockLen; i++ {
+	for i := 1; i < 256; i++ {
 		array[i].base = -(i + 1)
 		array[i].check = -(i - 1)
 	}
-	array[blockLen-1].base = -1
-	array[1].check = -(blockLen - 1)
-	b.empHead = 1
+	array[255].base = -1
+	array[1].check = -255
+	array[0].check = 1 // head empty
 
 	b.array = array
 	b.tail = tail
 }
 
 func (b *builder) finish() {
-	b.array[rootPos].check = -1
+	b.array[0].check = -1
 }
 
 func (b *builder) enlarge() {
 	oldLen := len(b.array)
-	newLen := oldLen + blockLen
+	newLen := oldLen + 256
 
 	for i := oldLen; i < newLen; i++ {
 		b.array = append(b.array, node{base: -(i + 1), check: -(i - 1)})
 	}
 
-	if b.empHead == rootPos {
+	if b.array[0].check == 0 {
 		b.array[oldLen].check = -(newLen - 1) // prev
 		b.array[newLen-1].base = -oldLen      // next
-		b.empHead = oldLen
+		b.array[0].check = oldLen
 	} else {
-		empTail := -b.array[b.empHead].check
+		empHead := b.array[0].check
+		empTail := -b.array[empHead].check
 		b.array[oldLen].check = -empTail
 		b.array[empTail].base = -oldLen
-		b.array[b.empHead].check = -(newLen - 1)
-		b.array[newLen-1].base = -b.empHead
+		b.array[empHead].check = -(newLen - 1)
+		b.array[newLen-1].base = -empHead
 	}
 }
 
@@ -189,11 +255,11 @@ func (b *builder) fix(npos int) {
 	b.array[next].check = -prev
 	b.array[prev].base = -next
 
-	if npos == b.empHead {
+	if npos == b.array[0].check {
 		if next == npos {
-			b.empHead = rootPos
+			b.array[0].check = 0
 		} else {
-			b.empHead = next
+			b.array[0].check = next
 		}
 	}
 }
@@ -222,6 +288,9 @@ func (b *builder) arrange(bpos, epos, depth, npos int) error {
 
 	if isTerminate {
 		bpos++
+		if len(b.keys[bpos]) == depth {
+			return fmt.Errorf("Each key must be unique")
+		}
 		edges = append(edges, terminator)
 	}
 
@@ -258,7 +327,7 @@ func (b *builder) arrange(bpos, epos, depth, npos int) error {
 	}
 
 	if isTerminate {
-		cpos := base ^ int(terminator)
+		cpos := base // ^ int(terminator)
 		b.array[cpos].base = b.values[bpos-1]
 	}
 
@@ -279,18 +348,20 @@ func (b *builder) arrange(bpos, epos, depth, npos int) error {
 }
 
 func (b *builder) xcheck(edges []byte) int {
-	if b.empHead == rootPos {
+	empHead := b.array[0].check
+
+	if empHead == 0 {
 		return len(b.array) ^ int(edges[0])
 	}
 
-	i := b.empHead
+	i := empHead
 	for {
 		base := i ^ int(edges[0])
 		if b.isTarget(base, edges) {
 			return base
 		}
 		i = -b.array[i].base
-		if i == b.empHead {
+		if i == empHead {
 			break
 		}
 	}
