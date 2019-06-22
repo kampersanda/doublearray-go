@@ -1,10 +1,3 @@
-# doublearray-go
-
-This package implements double-array minimal-prefix trie.
-
-## Usage
-
-```
 package main
 
 import (
@@ -38,18 +31,3 @@ func main() {
 		fmt.Printf("%s -> %d\n", decKeys[i], decValues[i])
 	}
 }
-```
-
-will produce
-
-```
-Bocci -> 505 (found = true)
-Peko -> ? (found = false)
-Aru -> 1224
-Bocci -> 505
-Kai -> 505
-Kako -> 611
-Nako -> 504
-Nakosuke -> 504
-Sotca -> 731
-```
