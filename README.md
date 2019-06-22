@@ -1,6 +1,11 @@
 # doublearray-go
 
-This package implements double-array minimal-prefix trie.
+Package `doublearray-go` implements double-array minimal-prefix trie.
+
+A double array is a fast and compact data structure for representing a trie, which can efficiently implement a dictionary with string keys.
+The main feature of `doublearray-go` is to apply, instead of a (plain) trie, a **minimal-prefix trie** which replaces non-branching node-to-leaf paths in a trie into strings.
+The minimal-prefix trie can reduce many nodes in a trie and can implement space- and cache-efficient trie-based dictionaries.
+
 
 ## Install
 
