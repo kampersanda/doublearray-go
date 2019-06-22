@@ -52,4 +52,13 @@ func main() {
 			fmt.Printf("- %s -> %d\n", targetKeys[i], targetValues[i])
 		}
 	}
+
+	fmt.Println("Statistics:")
+	{
+		fmt.Printf("- NumKeys: %d\n", da.NumKeys())
+		fmt.Printf("- NumNodes: %d\n", da.NumNodes())
+		fmt.Printf("- ArrayLen: %d\n", da.ArrayLen())
+		fmt.Printf("- TailLen: %d\n", da.TailLen())
+	}
+
 }

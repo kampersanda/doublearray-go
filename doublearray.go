@@ -4,9 +4,10 @@ import "fmt"
 
 // DoubleArray implements double-array minimal-prefix trie.
 type DoubleArray struct {
-	array   []node
-	tail    []byte
-	numKeys int
+	array    []node
+	tail     []byte
+	numKeys  int
+	numNodes int
 }
 
 // Build returns a DoubleArray object built from sorted key strings and associated values.
@@ -27,12 +28,34 @@ func Build(keys []string, values []int) (*DoubleArray, error) {
 	}
 	b.finish()
 
-	return &DoubleArray{array: b.array, tail: b.tail, numKeys: len(keys)}, nil
+	numNodes := 1 // 1 is for the root
+	for i := 0; i < len(b.array); i++ {
+		if b.array[i].check >= 0 {
+			numNodes++
+		}
+	}
+
+	return &DoubleArray{array: b.array, tail: b.tail, numKeys: len(keys), numNodes: numNodes}, nil
 }
 
 // NumKeys returns the number of keys stored.
 func (da *DoubleArray) NumKeys() int {
 	return da.numKeys
+}
+
+// NumNodes returns the number of nodes.
+func (da *DoubleArray) NumNodes() int {
+	return da.numNodes
+}
+
+// ArrayLen returns the length of BASE/CHECK array
+func (da *DoubleArray) ArrayLen() int {
+	return len(da.array)
+}
+
+// TailLen returns the length of TAIL array
+func (da *DoubleArray) TailLen() int {
+	return len(da.tail)
 }
 
 // Lookup returns the associated value with the given key if found.
