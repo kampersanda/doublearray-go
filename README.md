@@ -1,4 +1,4 @@
-# doublearray-go
+# doublearray-go [![GoDoc](https://godoc.org/github.com/kampersanda/doublearray-go?status.svg)](https://godoc.org/github.com/kampersanda/doublearray-go)
 
 Package `doublearray-go` implements double-array minimal-prefix trie.
 
