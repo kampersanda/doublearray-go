@@ -60,5 +60,4 @@ func main() {
 		fmt.Printf("- ArrayLen: %d\n", da.ArrayLen())
 		fmt.Printf("- TailLen: %d\n", da.TailLen())
 	}
-
 }
