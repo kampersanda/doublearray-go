@@ -4,7 +4,7 @@ This package implements double-array minimal-prefix trie.
 
 ## Usage
 
-```
+```go
 package main
 
 import (
