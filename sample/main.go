@@ -59,5 +59,6 @@ func main() {
 		fmt.Printf("- NumNodes: %d\n", da.NumNodes())
 		fmt.Printf("- ArrayLen: %d\n", da.ArrayLen())
 		fmt.Printf("- TailLen: %d\n", da.TailLen())
+		fmt.Printf("- AllocBytes: %d\n", da.AllocBytes())
 	}
 }

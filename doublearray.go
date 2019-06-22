@@ -1,6 +1,8 @@
 package doublearray
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // DoubleArray implements double-array minimal-prefix trie.
 type DoubleArray struct {
@@ -11,7 +13,7 @@ type DoubleArray struct {
 }
 
 // Build returns a DoubleArray object built from sorted key strings and associated values.
-// Each key must be unique and nonempty.
+// Each key must be unique and nonempty. NULL character byte(0) must not be included.
 func Build(keys []string, values []int) (*DoubleArray, error) {
 	if len(keys) == 0 {
 		return nil, fmt.Errorf("keys must not be empty")
@@ -56,6 +58,11 @@ func (da *DoubleArray) ArrayLen() int {
 // TailLen returns the length of TAIL array
 func (da *DoubleArray) TailLen() int {
 	return len(da.tail)
+}
+
+// AllocBytes returns the allocated size in bytes.
+func (da *DoubleArray) AllocBytes() int {
+	return da.ArrayLen()*8 + da.TailLen()
 }
 
 // Lookup returns the associated value with the given key if found.
@@ -174,6 +181,10 @@ func (da *DoubleArray) PredictiveLookup(key string) ([]string, []int) {
 	return keys, values
 }
 
+func (da *DoubleArray) getValue(tpos int) int {
+	return int(da.tail[tpos]) | int(da.tail[tpos+1])<<8 | int(da.tail[tpos+2])<<16 | int(da.tail[tpos+3])<<24
+}
+
 func (da *DoubleArray) enumerate(npos int, depth int, decoded []byte, keys []string, values []int) ([]string, []int) {
 	if da.array[npos].base < 0 {
 		tpos := -da.array[npos].base
@@ -204,10 +215,6 @@ func (da *DoubleArray) enumerate(npos int, depth int, decoded []byte, keys []str
 	}
 
 	return keys, values
-}
-
-func (da *DoubleArray) getValue(tpos int) int {
-	return int(da.tail[tpos]) | int(da.tail[tpos+1])<<8 | int(da.tail[tpos+2])<<16 | int(da.tail[tpos+3])<<24
 }
 
 const (
