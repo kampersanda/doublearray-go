@@ -320,9 +320,9 @@ func (b *builder) arrange(bpos, epos, depth, npos int) error {
 	}
 
 	edges := make([]byte, 0)
-	isTerminate := len(b.keys[bpos]) == depth
+	isPrefix := len(b.keys[bpos]) == depth
 
-	if isTerminate {
+	if isPrefix {
 		bpos++
 		if len(b.keys[bpos]) == depth {
 			return fmt.Errorf("Key duplication is not allowed")
@@ -362,7 +362,7 @@ func (b *builder) arrange(bpos, epos, depth, npos int) error {
 		b.array[cpos].check = npos
 	}
 
-	if isTerminate {
+	if isPrefix {
 		cpos := base // ^ int(terminator)
 		b.array[cpos].base = b.values[bpos-1]
 	}
