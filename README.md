@@ -1,10 +1,12 @@
-# doublearray-go [![GoDoc](https://godoc.org/github.com/kampersanda/doublearray-go?status.svg)](https://godoc.org/github.com/kampersanda/doublearray-go) [![Go Report Card](https://goreportcard.com/badge/github.com/kampersanda/doublearray-go)](https://goreportcard.com/report/github.com/kampersanda/doublearray-go) [![Build Status](https://travis-ci.org/kampersanda/doublearray-go.svg?branch=master)](https://travis-ci.org/kampersanda/doublearray-go)
+# doublearray-go 
 
-Package `doublearray-go` implements double-array minimal-prefix trie.
+[![GoDoc](https://godoc.org/github.com/kampersanda/doublearray-go?status.svg)](https://godoc.org/github.com/kampersanda/doublearray-go) [![Go Report Card](https://goreportcard.com/badge/github.com/kampersanda/doublearray-go)](https://goreportcard.com/report/github.com/kampersanda/doublearray-go) [![Build Status](https://travis-ci.org/kampersanda/doublearray-go.svg?branch=master)](https://travis-ci.org/kampersanda/doublearray-go)
 
-A double array is a fast and compact data structure for representing a trie, which can efficiently implement a dictionary with string keys.
-The main feature of `doublearray-go` is to apply, instead of a (plain) trie, a **minimal-prefix trie** which replaces non-branching node-to-leaf paths in a trie into strings.
-The minimal-prefix trie can reduce many nodes in a trie and can implement space- and cache-efficient trie-based dictionaries.
+Library `doublearray-go` implements double-array minimal-prefix trie.
+
+A double array is a fast and compact data structure for representing a trie, which can efficiently implement an associative array with string keys.
+The main feature of `doublearray-go` is to apply, instead of a (plain) trie, a **minimal-prefix trie** which replaces node-to-leaf non-branching paths in a trie into strings.
+The minimal-prefix trie can reduce many nodes in a trie and can implement space- and cache-efficient associative arrays.
 
 
 ## Install
@@ -33,7 +35,7 @@ func main() {
 		1, 2, 3, 4, 5, 6, 7,
 	}
 
-	da, err := doublearray.Build(keys, values)
+	da, err := doublearray.Build(keys, values) // keys must be sorted.
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,7 +45,7 @@ func main() {
 		value, found := da.Lookup("Bocci")
 		fmt.Printf("- Bocci -> %d (found = %t)\n", value, found)
 
-		value, found = da.Lookup("Peko")
+		_, found = da.Lookup("Peko")
 		fmt.Printf("- Peko -> ? (found = %t)\n", found)
 	}
 
@@ -55,7 +57,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("Common Prefix Lookup for 'Ka':")
+	fmt.Println("Predictive Lookup for 'Ka':")
 	{
 		targetKeys, targetValues := da.PredictiveLookup("Ka")
 		for i := 0; i < len(targetKeys); i++ {
@@ -91,7 +93,7 @@ Exact Lookup for 'Bocci' and 'Peko':
 Common Prefix Lookup for 'Nakosuke':
 - Nako -> 5
 - Nakosuke -> 6
-Common Prefix Lookup for 'Ka':
+Predictive Lookup for 'Ka':
 - Kai -> 3
 - Kako -> 4
 Enumerate all keys:

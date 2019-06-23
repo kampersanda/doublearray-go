@@ -15,7 +15,7 @@ func main() {
 		1, 2, 3, 4, 5, 6, 7,
 	}
 
-	da, err := doublearray.Build(keys, values)
+	da, err := doublearray.Build(keys, values) // keys must be sorted.
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -25,7 +25,7 @@ func main() {
 		value, found := da.Lookup("Bocci")
 		fmt.Printf("- Bocci -> %d (found = %t)\n", value, found)
 
-		value, found = da.Lookup("Peko")
+		_, found = da.Lookup("Peko")
 		fmt.Printf("- Peko -> ? (found = %t)\n", found)
 	}
 
@@ -37,7 +37,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("Common Prefix Lookup for 'Ka':")
+	fmt.Println("Predictive Lookup for 'Ka':")
 	{
 		targetKeys, targetValues := da.PredictiveLookup("Ka")
 		for i := 0; i < len(targetKeys); i++ {

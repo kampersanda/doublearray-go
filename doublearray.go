@@ -4,7 +4,8 @@ import (
 	"fmt"
 )
 
-// DoubleArray implements double-array minimal-prefix trie.
+// DoubleArray implements an associative array whose key is a string and value is int.
+// The data structure is based on a double-array minimal-prefix trie.
 type DoubleArray struct {
 	array    []node
 	tail     []byte
@@ -24,6 +25,7 @@ func Build(keys []string, values []int) (*DoubleArray, error) {
 	}
 
 	b := builder{keys: keys, values: values}
+
 	b.init()
 	err := b.arrange(0, len(keys), 0, 0)
 	if err != nil {
@@ -67,6 +69,7 @@ func (da *DoubleArray) AllocBytes() int {
 }
 
 // Lookup returns the associated value with the given key if found.
+// If NULL character is included in the given key, this behavior is invalid.
 func (da *DoubleArray) Lookup(key string) (int, bool) {
 	npos := 0
 	depth := 0
@@ -105,6 +108,7 @@ func (da *DoubleArray) Lookup(key string) (int, bool) {
 }
 
 // PrefixLookup returns the keys and associated values included as prefixes of the given key.
+// If NULL character is included in the given key, this behavior is invalid.
 func (da *DoubleArray) PrefixLookup(key string) ([]string, []int) {
 	keys := make([]string, 0)
 	values := make([]int, 0)
@@ -158,6 +162,7 @@ func (da *DoubleArray) PrefixLookup(key string) ([]string, []int) {
 }
 
 // PredictiveLookup returns the keys and associated values starting with prefixes of the given key.
+// If NULL character is included in the given key, this behavior is invalid.
 func (da *DoubleArray) PredictiveLookup(key string) ([]string, []int) {
 	keys := make([]string, 0, da.numKeys)
 	values := make([]int, 0, da.numKeys)
@@ -240,7 +245,7 @@ func (b *builder) init() {
 	}
 
 	array := make([]node, 256, capa)
-	tail := make([]byte, 1)
+	tail := make([]byte, 1, capa)
 
 	for i := 1; i < 256; i++ {
 		array[i].base = -(i + 1)
@@ -255,7 +260,7 @@ func (b *builder) init() {
 }
 
 func (b *builder) finish() {
-	b.array[0].check = -1
+	b.array[0].check = -1 // To avoid traversal to the root
 }
 
 func (b *builder) enlarge() {
