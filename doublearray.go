@@ -13,7 +13,8 @@ type DoubleArray struct {
 }
 
 // Build returns a DoubleArray object built from sorted key strings and associated values.
-// Each key must be unique and nonempty. NULL character byte(0) must not be included.
+// Key duplication and empty key are not allowed.
+// NULL character byte(0) must not be included since it is used for the terminator.
 func Build(keys []string, values []int) (*DoubleArray, error) {
 	if len(keys) == 0 {
 		return nil, fmt.Errorf("keys must not be empty")
@@ -31,7 +32,7 @@ func Build(keys []string, values []int) (*DoubleArray, error) {
 	b.finish()
 
 	numNodes := 1 // 1 is for the root
-	for i := 0; i < len(b.array); i++ {
+	for i := 1; i < len(b.array); i++ {
 		if b.array[i].check >= 0 {
 			numNodes++
 		}
@@ -319,7 +320,7 @@ func (b *builder) arrange(bpos, epos, depth, npos int) error {
 	if isTerminate {
 		bpos++
 		if len(b.keys[bpos]) == depth {
-			return fmt.Errorf("Each key must be unique")
+			return fmt.Errorf("Key duplication is not allowed")
 		}
 		edges = append(edges, terminator)
 	}
